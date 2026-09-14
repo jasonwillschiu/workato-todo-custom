@@ -1,0 +1,24 @@
+{
+  "name": "Serve UI",
+  "recipe_id": {
+    "zip_name": "Todo App/todo_app_serve_ui.recipe.json",
+    "name": "Todo App - Serve UI",
+    "folder": "Todo App"
+  },
+  "api_group_id": {
+    "zip_name": "todo_app.api_group.json",
+    "name": "Todo App",
+    "folder": ""
+  },
+  "method": "GET",
+  "path": "ui",
+  "legacy": false,
+  "validate_request": false,
+  "validation_formula": "",
+  "use_cache": false,
+  "cache_ttl": 600,
+  "cache_keys": [
+
+  ],
+  "cache_size_limit": 10240
+}

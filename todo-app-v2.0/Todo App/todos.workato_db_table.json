@@ -1,0 +1,67 @@
+{
+  "name": "Todos",
+  "schema": [
+    {
+      "id": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+      "title": "Record ID",
+      "type": "short-text",
+      "read_only": true,
+      "hidden": true
+    },
+    {
+      "id": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+      "title": "Created time",
+      "type": "date-time",
+      "read_only": true,
+      "hidden": true
+    },
+    {
+      "id": "61aae604-a95e-4519-9091-bb0bf754a67f",
+      "title": "Last modified time",
+      "type": "date-time",
+      "read_only": true,
+      "hidden": true
+    },
+    {
+      "id": "3c688cb9-f069-420d-99a9-62180137b81e",
+      "title": "title",
+      "type": "short-text",
+      "read_only": false,
+      "hidden": false,
+      "required": true,
+      "metadata": {
+      }
+    },
+    {
+      "id": "3f29d34b-7d94-4fcb-a6a2-f3e2896642d5",
+      "title": "notes",
+      "type": "short-text",
+      "read_only": false,
+      "hidden": false,
+      "required": false,
+      "metadata": {
+      }
+    },
+    {
+      "id": "ddc9a141-bb20-46d3-9eec-17cbe8ba9ed5",
+      "title": "completed",
+      "type": "boolean",
+      "read_only": false,
+      "hidden": false,
+      "required": true,
+      "metadata": {
+      }
+    },
+    {
+      "id": "365a868f-9e51-42bd-a02a-e66ba9ced868",
+      "title": "due_date",
+      "type": "date",
+      "read_only": false,
+      "hidden": false,
+      "required": false,
+      "metadata": {
+      }
+    }
+  ],
+  "project_name": "Todo App"
+}

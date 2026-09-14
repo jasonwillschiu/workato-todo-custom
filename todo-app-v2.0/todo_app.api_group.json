@@ -1,0 +1,9 @@
+{
+  "name": "Todo App",
+  "version": "1.0",
+  "description": null,
+  "handle": "todo-app",
+  "use_prefix": true,
+  "soap": false,
+  "soap_config": null
+}

@@ -1,0 +1,174 @@
+{
+  "name": "Todos - Delete",
+  "version": 8,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "as": "receive_request",
+    "number": 0,
+    "keyword": "trigger",
+    "provider": "workato_api_platform",
+    "name": "receive_request",
+    "skip": false,
+    "uuid": "118201dc-6520-43f4-a5ff-05b2e2f7f63a",
+    "input": {
+      "request": {
+        "content_type": "json",
+        "schema": "[{\"control_type\": \"text\", \"label\": \"id\", \"type\": \"string\", \"name\": \"id\", \"optional\": false}]"
+      },
+      "response": {
+        "content_type": "json",
+        "responses": [
+          {
+            "name": "200 - OK",
+            "http_status_code": "200",
+            "body_schema": "[{\"name\": \"status\", \"type\": \"string\", \"optional\": true, \"label\": \"status\"}]"
+          }
+        ]
+      }
+    },
+    "dynamicPickListSelection": {
+      "response.responses.0.http_status_code": "200 - OK"
+    },
+    "toggleCfg": {
+      "response.responses.0.http_status_code": true
+    },
+    "block": [
+      {
+        "as": "delete_record_main",
+        "number": 1,
+        "keyword": "action",
+        "input": {
+          "table_id": {
+            "zip_name": "Todo App/todos.workato_db_table.json",
+            "name": "Todos",
+            "folder": "Todo App"
+          },
+          "record_id": "#{_dp('{\"pill_type\": \"output\", \"provider\": \"workato_api_platform\", \"line\": \"receive_request\", \"path\": [\"request\", \"id\"]}')}"
+        },
+        "provider": "workato_db_table",
+        "name": "delete_record",
+        "skip": false,
+        "uuid": "cbd3b012-d890-4d2d-9020-fa848b9ad587"
+      },
+      {
+        "as": "return_response_ok",
+        "number": 2,
+        "keyword": "action",
+        "input": {
+          "http_status_code": "200",
+          "response": {
+            "status": "deleted"
+          }
+        },
+        "provider": "workato_api_platform",
+        "name": "return_response",
+        "skip": false,
+        "uuid": "95e3be4a-4aae-4c96-bde4-be89e59051a1",
+        "dynamicPickListSelection": {
+          "http_status_code": "200 - OK"
+        },
+        "toggleCfg": {
+          "http_status_code": true
+        },
+        "extended_input_schema": [
+          {
+            "control_type": "select",
+            "label": "Response",
+            "type": "string",
+            "name": "http_status_code",
+            "pick_list": [
+              [
+                "ok",
+                "200"
+              ],
+              [
+                "error",
+                "500"
+              ]
+            ],
+            "extends_schema": true,
+            "change_on_blur": true
+          },
+          {
+            "label": "Response body",
+            "type": "object",
+            "name": "response",
+            "extends_schema": false,
+            "properties": [
+              {
+                "name": "status",
+                "type": "string",
+                "optional": true,
+                "label": "status"
+              }
+            ]
+          }
+        ],
+        "extended_output_schema": [
+          {
+            "control_type": "select",
+            "label": "Response",
+            "type": "string",
+            "name": "http_status_code",
+            "pick_list": [
+              [
+                "ok",
+                "200"
+              ],
+              [
+                "error",
+                "500"
+              ]
+            ],
+            "extends_schema": true,
+            "change_on_blur": true
+          },
+          {
+            "label": "Response body",
+            "type": "object",
+            "name": "response",
+            "extends_schema": false,
+            "properties": [
+              {
+                "name": "status",
+                "type": "string",
+                "optional": true,
+                "label": "status"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "extended_output_schema": [
+      {
+        "label": "Request",
+        "type": "object",
+        "name": "request",
+        "extends_schema": false,
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "id",
+            "type": "string",
+            "name": "id",
+            "extends_schema": false
+          }
+        ]
+      }
+    ]
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_api_platform",
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_db_table",
+      "account_id": null
+    }
+  ]
+}

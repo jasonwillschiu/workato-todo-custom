@@ -1,0 +1,474 @@
+{
+  "name": "Todo App - Serve UI",
+  "version": 35,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_api_platform",
+    "name": "receive_request",
+    "as": "receive_request",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "response.responses.0.http_status_code": "200 - OK",
+      "response.content_type": "Text/XML"
+    },
+    "toggleCfg": {
+      "response.responses.0.http_status_code": true
+    },
+    "input": {
+      "request": {
+        "content_type": "json",
+        "schema": "[{\"control_type\": \"text\", \"label\": \"v\", \"type\": \"string\", \"name\": \"v\", \"optional\": true}]"
+      },
+      "response": {
+        "content_type": "raw",
+        "responses": [
+          {
+            "name": "200 - OK",
+            "http_status_code": "200",
+            "body_schema": "[]"
+          }
+        ],
+        "headers": "[{\"name\": \"Content-Type\", \"label\": \"Content-Type\", \"type\": \"string\", \"control_type\": \"text\", \"optional\": true}]"
+      }
+    },
+    "extended_output_schema": [
+      {
+        "extends_schema": false,
+        "label": "Request",
+        "name": "request",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "v",
+            "type": "string",
+            "name": "v",
+            "extends_schema": false
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "visible_config_fields": [
+      "response",
+      "response.content_type",
+      "response.headers"
+    ],
+    "block": [
+      {
+        "number": 1,
+        "as": "if_latest",
+        "keyword": "if",
+        "input": {
+          "operand": "or",
+          "type": "compound",
+          "conditions": [
+            {
+              "operand": "blank",
+              "lhs": "=_dp('{\"pill_type\": \"output\", \"provider\": \"workato_api_platform\", \"line\": \"receive_request\", \"path\": [\"request\", \"v\"]}')"
+            },
+            {
+              "operand": "equals_to",
+              "lhs": "=_dp('{\"pill_type\": \"output\", \"provider\": \"workato_api_platform\", \"line\": \"receive_request\", \"path\": [\"request\", \"v\"]}')",
+              "rhs": "latest"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 2,
+            "provider": "workato_files",
+            "name": "search_files",
+            "as": "9195e1c7",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "file_path": {
+                "ids": [
+                  "/",
+                  "/todo-app"
+                ],
+                "titles": [
+                  "Root directory",
+                  "todo-app"
+                ]
+              }
+            },
+            "toggleCfg": {
+              "file_path": true
+            },
+            "input": {
+              "file_name_filter": {
+                "condition": "contains",
+                "value": ".html"
+              },
+              "file_path": "/todo-app"
+            },
+            "visible_config_fields": [
+              "file_path",
+              "file_name_filter",
+              "file_name_filter.condition",
+              "file_name_filter.value",
+              "page",
+              "page_size"
+            ],
+            "uuid": "06e6cad7-4552-4835-92e1-f69c93341354",
+            "skip": false
+          },
+          {
+            "number": 3,
+            "provider": "workato_custom_code",
+            "name": "invoke_custom_ruby_code",
+            "as": "d6733d55",
+            "keyword": "action",
+            "input": {
+              "payload_asset_type": "inline",
+              "code": "# Sort files by filename descending so latest version is first\nfiles = input[\"files_array\"] || []\nsorted = files.sort_by { |f| (f[\"name\"].to_s[/v(\\d+)/, 1] || \"0\").to_i }.reverse\nlatest_name = sorted.first && sorted.first[\"name\"]\nversion = latest_name.to_s[/v(\\d+)/, 1]\n{ version_integer: version }\n",
+              "name": "get_latest_file_version",
+              "code_input": {
+                "schema": "[{\"name\": \"files_array\", \"type\": \"array\", \"of\": \"object\", \"optional\": true, \"label\": \"files_array\", \"properties\": [{\"name\": \"name\", \"type\": \"string\", \"control_type\": \"text\", \"label\": \"Name\", \"optional\": true, \"parent\": [\"code_input\", \"data\", \"files_array\"]}], \"parent\": [\"code_input\", \"data\"]}]",
+                "data": {
+                  "files_array": {
+                    "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"9195e1c7\",\"path\":[\"files\"]}')}",
+                    "name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"9195e1c7\",\"path\":[\"files\", {\"path_element_type\": \"current_item\"}, \"name\"]}')}"
+                  }
+                }
+              },
+              "code_output_schema_json": "[{\"name\":\"version_integer\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Version integer\"}]"
+            },
+            "extended_output_schema": [
+              {
+                "extends_schema": false,
+                "label": "Output",
+                "name": "output",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Version integer",
+                    "type": "string",
+                    "name": "version_integer",
+                    "optional": false,
+                    "extends_schema": false
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "form-schema-builder",
+                "extends_schema": false,
+                "label": "Input",
+                "name": "code_input",
+                "optional": true,
+                "override": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Schema",
+                    "type": "string",
+                    "name": "schema",
+                    "extends_schema": true
+                  },
+                  {
+                    "label": "Data",
+                    "type": "object",
+                    "name": "data",
+                    "extends_schema": false,
+                    "properties": [
+                      {
+                        "label": "files_array",
+                        "type": "array",
+                        "name": "files_array",
+                        "optional": true,
+                        "extends_schema": false,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Name",
+                            "type": "string",
+                            "name": "name",
+                            "optional": true,
+                            "extends_schema": false,
+                            "parent": [
+                              "code_input",
+                              "data",
+                              "files_array"
+                            ]
+                          }
+                        ],
+                        "parent": [
+                          "code_input",
+                          "data"
+                        ],
+                        "of": "object"
+                      }
+                    ]
+                  }
+                ],
+                "sticky": true,
+                "type": "object"
+              }
+            ],
+            "visible_config_fields": [
+              "name",
+              "code_input",
+              "code_output_schema_json",
+              "payload_asset_type",
+              "code",
+              "code_input.data.files_array",
+              "code_input.schema",
+              "code_input.data",
+              "code_input.data.files_array.____source",
+              "code_input.data.files_array.name"
+            ],
+            "uuid": "950176e3-9858-4cee-9cb7-8e111978056a",
+            "skip": false
+          },
+          {
+            "number": 4,
+            "provider": "workato_files",
+            "name": "get_file_contents",
+            "as": "get_file_latest",
+            "keyword": "action",
+            "toggleCfg": {
+              "file_path": true
+            },
+            "input": {
+              "file_path": "/todo-app/todo-ui-v#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_custom_code\",\"line\":\"d6733d55\",\"path\":[\"output\",\"version_integer\"]}')}.html"
+            },
+            "uuid": "get_file_latest",
+            "skip": false
+          },
+          {
+            "number": 5,
+            "provider": "workato_api_platform",
+            "name": "return_response",
+            "as": "return_latest",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "http_status_code": "200 - OK"
+            },
+            "toggleCfg": {
+              "http_status_code": true
+            },
+            "input": {
+              "http_status_code": "200",
+              "response": {
+                "body": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"get_file_latest\",\"path\":[\"content\"]}')}"
+              },
+              "response_headers": {
+                "Content-Type": "text/html; charset=utf-8"
+              }
+            },
+            "extended_input_schema": [
+              {
+                "change_on_blur": true,
+                "control_type": "select",
+                "extends_schema": true,
+                "label": "Response",
+                "name": "http_status_code",
+                "pick_list": [
+                  [
+                    "200 - OK",
+                    "200"
+                  ]
+                ],
+                "type": "string"
+              },
+              {
+                "extends_schema": false,
+                "label": "Response headers",
+                "name": "response_headers",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Content-Type",
+                    "type": "string",
+                    "name": "Content-Type",
+                    "optional": true,
+                    "extends_schema": false
+                  }
+                ],
+                "type": "object"
+              },
+              {
+                "extends_schema": false,
+                "label": "Response body",
+                "name": "response",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text-area",
+                    "label": "Body",
+                    "type": "string",
+                    "name": "body",
+                    "optional": true,
+                    "sticky": true,
+                    "extends_schema": false,
+                    "supports_byte_streaming": true
+                  }
+                ],
+                "sticky": true,
+                "type": "object"
+              }
+            ],
+            "visible_config_fields": [
+              "response",
+              "response.body",
+              "response_headers",
+              "response_headers.Content-Type"
+            ],
+            "uuid": "return_latest",
+            "skip": false
+          }
+        ],
+        "uuid": "if_latest",
+        "skip": false
+      },
+      {
+        "number": 6,
+        "as": "if_explicit",
+        "keyword": "if",
+        "input": {
+          "operand": "and",
+          "type": "compound",
+          "conditions": [
+            {
+              "operand": "present",
+              "lhs": "=_dp('{\"pill_type\": \"output\", \"provider\": \"workato_api_platform\", \"line\": \"receive_request\", \"path\": [\"request\", \"v\"]}')"
+            },
+            {
+              "operand": "not_equals_to",
+              "lhs": "=_dp('{\"pill_type\": \"output\", \"provider\": \"workato_api_platform\", \"line\": \"receive_request\", \"path\": [\"request\", \"v\"]}')",
+              "rhs": "latest"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 7,
+            "provider": "workato_files",
+            "name": "get_file_contents",
+            "as": "get_file_explicit",
+            "keyword": "action",
+            "toggleCfg": {
+              "file_path": true
+            },
+            "input": {
+              "file_path": "/todo-app/todo-ui-#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"receive_request\",\"path\":[\"request\", \"v\"]}')}.html"
+            },
+            "uuid": "get_file_explicit",
+            "skip": false
+          },
+          {
+            "number": 8,
+            "provider": "workato_api_platform",
+            "name": "return_response",
+            "as": "return_explicit",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "http_status_code": "200 - OK"
+            },
+            "toggleCfg": {
+              "http_status_code": true
+            },
+            "input": {
+              "http_status_code": "200",
+              "response": {
+                "body": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"get_file_explicit\",\"path\":[\"content\"]}')}"
+              },
+              "response_headers": {
+                "Content-Type": "text/html; charset=utf-8"
+              }
+            },
+            "extended_input_schema": [
+              {
+                "change_on_blur": true,
+                "control_type": "select",
+                "extends_schema": true,
+                "label": "Response",
+                "name": "http_status_code",
+                "pick_list": [
+                  [
+                    "200 - OK",
+                    "200"
+                  ]
+                ],
+                "type": "string"
+              },
+              {
+                "extends_schema": false,
+                "label": "Response headers",
+                "name": "response_headers",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Content-Type",
+                    "type": "string",
+                    "name": "Content-Type",
+                    "optional": true,
+                    "extends_schema": false
+                  }
+                ],
+                "type": "object"
+              },
+              {
+                "extends_schema": false,
+                "label": "Response body",
+                "name": "response",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text-area",
+                    "label": "Body",
+                    "type": "string",
+                    "name": "body",
+                    "optional": true,
+                    "sticky": true,
+                    "extends_schema": false,
+                    "supports_byte_streaming": true
+                  }
+                ],
+                "sticky": true,
+                "type": "object"
+              }
+            ],
+            "visible_config_fields": [
+              "response",
+              "response.body",
+              "response_headers",
+              "response_headers.Content-Type"
+            ],
+            "uuid": "return_explicit",
+            "skip": false
+          }
+        ],
+        "uuid": "if_explicit",
+        "skip": false
+      }
+    ],
+    "uuid": "dabf8dbc-f336-49d0-96e2-bc0b54087195",
+    "skip": false
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_api_platform",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_files",
+      "account_id": null,
+      "skip_validation": false
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_custom_code",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}

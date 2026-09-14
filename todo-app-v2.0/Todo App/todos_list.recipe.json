@@ -1,0 +1,231 @@
+{
+  "name": "Todos - List",
+  "version": 7,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "as": "receive_request",
+    "number": 0,
+    "keyword": "trigger",
+    "provider": "workato_api_platform",
+    "name": "receive_request",
+    "skip": false,
+    "uuid": "a83edc42-bfcd-4e80-ac3d-7895fad64364",
+    "input": {
+      "request": {
+        "content_type": "json",
+        "schema": "[]"
+      },
+      "response": {
+        "content_type": "json",
+        "responses": [
+          {
+            "name": "200 - OK",
+            "http_status_code": "200",
+            "body_schema": "[{\"name\": \"records_json\", \"type\": \"string\", \"optional\": true, \"label\": \"records_json\"}]"
+          }
+        ]
+      }
+    },
+    "dynamicPickListSelection": {
+      "response.responses.0.http_status_code": "200 - OK"
+    },
+    "toggleCfg": {
+      "response.responses.0.http_status_code": true
+    },
+    "extended_output_schema": [
+
+    ],
+    "block": [
+      {
+        "as": "get_records_main",
+        "number": 1,
+        "keyword": "action",
+        "input": {
+          "table_id": {
+            "zip_name": "Todo App/todos.workato_db_table.json",
+            "name": "Todos",
+            "folder": "Todo App"
+          }
+        },
+        "provider": "workato_db_table",
+        "name": "get_records",
+        "skip": false,
+        "uuid": "05cac79b-1245-4cc4-9429-9a0ece11d81e",
+        "extended_input_schema": [
+          {
+            "control_type": "text",
+            "label": "Table",
+            "type": "string",
+            "name": "table_id",
+            "extends_schema": true
+          }
+        ],
+        "extended_output_schema": [
+          {
+            "label": "Records",
+            "type": "array",
+            "name": "records",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Record ID",
+                "type": "string",
+                "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005",
+                "extends_schema": false
+              },
+              {
+                "control_type": "text",
+                "label": "title",
+                "type": "string",
+                "name": "3c688cb9_f069_420d_99a9_62180137b81e",
+                "extends_schema": false
+              },
+              {
+                "control_type": "text",
+                "label": "notes",
+                "type": "string",
+                "name": "3f29d34b_7d94_4fcb_a6a2_f3e2896642d5",
+                "extends_schema": false
+              },
+              {
+                "control_type": "checkbox",
+                "label": "completed",
+                "type": "boolean",
+                "name": "ddc9a141_bb20_46d3_9eec_17cbe8ba9ed5",
+                "extends_schema": false
+              },
+              {
+                "control_type": "date",
+                "label": "due_date",
+                "type": "date",
+                "name": "365a868f_9e51_42bd_a02a_e66ba9ced868",
+                "extends_schema": false
+              },
+              {
+                "control_type": "date_time",
+                "label": "Created at",
+                "type": "date_time",
+                "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1",
+                "extends_schema": false,
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion"
+              },
+              {
+                "control_type": "date_time",
+                "label": "Updated at",
+                "type": "date_time",
+                "name": "61aae604_a95e_4519_9091_bb0bf754a67f",
+                "extends_schema": false,
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "as": "return_response_ok",
+        "number": 2,
+        "keyword": "action",
+        "input": {
+          "http_status_code": "200",
+          "response": {
+            "records_json": "#{_dp('{\"pill_type\": \"output\", \"provider\": \"workato_db_table\", \"line\": \"get_records_main\", \"path\": [\"records\"]}')}"
+          }
+        },
+        "provider": "workato_api_platform",
+        "name": "return_response",
+        "skip": false,
+        "uuid": "5f389e9a-0192-4e91-a1f5-1e92e939e5c2",
+        "dynamicPickListSelection": {
+          "http_status_code": "200 - OK"
+        },
+        "toggleCfg": {
+          "http_status_code": true,
+          "response.records_json": true
+        },
+        "extended_input_schema": [
+          {
+            "control_type": "select",
+            "label": "Response",
+            "type": "string",
+            "name": "http_status_code",
+            "pick_list": [
+              [
+                "ok",
+                "200"
+              ],
+              [
+                "error",
+                "500"
+              ]
+            ],
+            "extends_schema": true,
+            "change_on_blur": true
+          },
+          {
+            "label": "Response body",
+            "type": "object",
+            "name": "response",
+            "extends_schema": false,
+            "properties": [
+              {
+                "name": "records_json",
+                "type": "string",
+                "optional": true,
+                "label": "records_json"
+              }
+            ]
+          }
+        ],
+        "extended_output_schema": [
+          {
+            "control_type": "select",
+            "label": "Response",
+            "type": "string",
+            "name": "http_status_code",
+            "pick_list": [
+              [
+                "ok",
+                "200"
+              ],
+              [
+                "error",
+                "500"
+              ]
+            ],
+            "extends_schema": true,
+            "change_on_blur": true
+          },
+          {
+            "label": "Response body",
+            "type": "object",
+            "name": "response",
+            "extends_schema": false,
+            "properties": [
+              {
+                "name": "records_json",
+                "type": "string",
+                "optional": true,
+                "label": "records_json"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_api_platform",
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_db_table",
+      "account_id": null
+    }
+  ]
+}
