@@ -1,3 +1,6 @@
+# 0.3.0 - Update: Moved todo-custom to folder
+- Moving to a /todo-custom folder for the initial example app
+
 # 0.2.0 - Add: Versioned UI publishing
 - Serve the highest numbered UI file or pin a version in the URL.
 - Add a reusable Workato app template and project export.
