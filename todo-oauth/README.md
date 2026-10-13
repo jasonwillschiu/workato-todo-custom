@@ -54,8 +54,9 @@ flowchart TD
 1. The page is served by a token-protected collection. The site key in the link only gates static HTML, not data.
 2. **The page is its own OAuth callback.** Google redirects back to the page URL with `#id_token=...` in the fragment. The page checks `state` and `nonce`, keeps the token in `sessionStorage`, and clears the fragment.
 3. Both collections sit on `https://apim.workato.com`, so the browser makes same-origin calls and no CORS setup is needed.
-4. Each API recipe gets the caller's email from the trigger's `context.jwt_payload.email`. If that is empty it falls back to decoding the `Authorization` header payload in a Ruby step. The fallback is safe only because the API collection accepts nothing except gateway-verified tokens.
-5. Update and delete look the row up first. A row that belongs to someone else returns 404, the same as a missing row.
+4. Each API recipe reads the `Authorization` header (declared in the trigger's request headers) and decodes the token payload in a Ruby step to get `email`, `hd` and `email_verified`. Decoding is safe only because the API collection accepts nothing except gateway-verified tokens.
+5. **Domain restriction.** The Ruby step allows only `@workato.com` addresses, with `hd` equal to `workato.com` when present and `email_verified` not false. Other signed-in users get 403 "This app is limited to workato.com accounts". A request with no identity gets 401. The allowed domain is the `allowed_domain` variable at the top of each recipe's Ruby step.
+6. Update and delete look the row up first. A row that belongs to someone else returns 404, the same as a missing row.
 
 Google ID tokens last one hour and this flow gives no refresh token, so the page returns to the sign-in screen when the token expires.
 
@@ -94,7 +95,7 @@ Done once, by hand:
 1. **OpenID Connect client** (Platform > API platform > Clients > Create client)
    - Authentication method: **OpenID Connect**. Discovery URL: `https://accounts.google.com/.well-known/openid-configuration`.
    - Attach the **Todo OAuth API** collection only.
-   - Open the client's **Applications**, create an application with credential type **Custom validation**. Issuer: `https://accounts.google.com`. Claim rules: `aud` one of the Google client ID above, `sub` exists, `email` exists.
+   - Open the client's **Applications**, create an application with credential type **Custom validation**. Issuer: `https://accounts.google.com`. Claim rules: `aud` one of the Google client ID above, `sub` exists, `email` exists, and `hd` one of `workato.com` (blocks other accounts at the gateway, before any recipe runs).
 2. **Google Cloud Console** (APIs & Services > Credentials > the `Todo OAuth` Web application client)
    - Authorized JavaScript origin: `https://apim.workato.com`.
    - Authorized redirect URI: the exact page URL from [URLs](#urls), including `?api_token=<SITE_KEY>` and no fragment. It must match character for character.
@@ -109,7 +110,7 @@ Optional: rename the collection slugs to `todo-oauth-web` and `todo-oauth-api`, 
 3. **`store_file` never overwrites.** Publishing a file whose name already exists fails with "File already exists". Use a new version number, or delete the old file in the GUI first.
 4. Reload the link. The highest version is served automatically. To roll back, pin an older one with `&v=vN`.
 
-`todo-oauth-ui-v1.html` and `todo-oauth-ui-v2.html` are copies of what is in File Storage. They differ only in the signed-out headline.
+`todo-oauth-ui-v1.html` and `todo-oauth-ui-v2.html` are copies of what is in File Storage. They differ only in the signed-out headline. `todo-oauth-ui-v3.html` adds a full-screen "Access limited" page: a 403, or a 401 on a token that has not expired, shows it with the signed-in email and a "Use a different account" button, while a 401 on an expired token still returns to the sign-in screen. `todo-oauth-ui-v4.html` adds a browser-side check of the same rule (`ALLOWED_DOMAIN` in the config block): a signed-in account that is not a verified `@workato.com` address goes straight to the "Access limited" page and no API call is made. The check is for user experience only; Workato still enforces the rule. Local v3 and v4 are not in File Storage until you upload them, and File Storage never overwrites, so upload v4 as a new file. The highest version is served.
 
 ## Verify
 
@@ -126,7 +127,9 @@ curl -s "$API"                                                # 401
 ## Quirks worth knowing
 
 - **Endpoint paths.** The dev API derives an endpoint's path from the route it was created on, so the paths are the long `api_collections/...` form. Slugs and paths are only editable in the GUI.
-- **Trigger context.** API recipe triggers expose `context.headers.<Name>` and `context.jwt_payload.<claim>`. Request headers must be declared in the trigger's `request.headers` schema to appear.
+- **Trigger context.** API recipe triggers expose `context.headers.<Name>` at runtime, and `context.jwt_payload.<claim>` in the job output. Request headers must be declared in the trigger's `request.headers` schema to appear. The recipes do not map `jwt_payload`, because Airo's regenerated trigger schema does not include it.
+- **Trigger response codes must be numeric.** In a recipe's trigger, each response's `http_status_code` is `200`, `401`, `403` or `404`, with the label (`200 - OK`) only in `name`. Setting it to the label text through Airo makes the return steps invalid, and the recipe will not start. After editing, `recipe_builder_get_input_schema` on a return step must list every response code, including 200.
+- **Editing the recipes.** Airo (`recipe_builder_*`) cannot edit a running recipe and has no stop or start tool. Stop the recipe in the GUI or with the dev API first, edit, push, then start it again.
 - **Recipes returning several statuses** declare each response in the trigger (`200`, `401`, `404`) and use `if` blocks with complementary conditions, because API-triggered recipes reject `else`.
 - **`completed` comes back as the string `"true"` or `"false"`** from create and update. The UI normalises it.
 - **The list is fetched whole and filtered by owner inside a Ruby step.** That is fine for a demo and does not scale to large tables.
