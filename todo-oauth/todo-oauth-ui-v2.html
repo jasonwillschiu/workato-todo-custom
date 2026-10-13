@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ledger &middot; Todo</title>
+<style>
+:root{--bg:#14110f;--panel:#1c1814;--line:#352b21;--ink:#f3ece0;--mute:#a39680;--accent:#f0a53a;--danger:#e4664c;
+--serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(1100px 500px at 50% -10%,#2a2016 0,transparent 70%),var(--bg);color:var(--ink);font-family:var(--serif);padding:56px 20px 80px}
+main{max-width:640px;margin:0 auto}
+.kicker{font:600 11px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--accent)}
+h1{font-weight:400;font-size:clamp(38px,8vw,58px);line-height:1.02;margin:14px 0 6px;letter-spacing:-.01em}
+h1 em{color:var(--accent);font-style:italic}
+.date{font:13px var(--mono);color:var(--mute);margin:0 0 30px}
+.rule{height:1px;background:linear-gradient(90deg,var(--accent),var(--line) 30%,transparent);border:0;margin:0 0 26px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.who{display:flex;align-items:center;gap:10px;font:12px var(--mono);color:var(--mute);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 6px 5px 5px;white-space:nowrap}
+.who img,.who i{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#1a1208;display:grid;place-items:center;font:700 12px var(--mono);font-style:normal;object-fit:cover}
+.who span{max-width:150px;overflow:hidden;text-overflow:ellipsis}
+.who button{background:none;border:0;color:var(--mute);font:12px var(--mono);cursor:pointer;padding:4px 8px;border-radius:999px}
+.who button:hover{color:var(--ink);background:#2a2219}
+button,input{font-family:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.google{display:inline-flex;align-items:center;gap:12px;background:var(--ink);color:#1a1208;border:0;border-radius:6px;padding:14px 22px;font:600 15px var(--serif);cursor:pointer;margin-top:8px;transition:transform .15s,background .15s}
+.google:hover{background:#fff;transform:translateY(-1px)}
+.lede{color:var(--mute);font-size:18px;line-height:1.55;max-width:46ch;margin:0 0 22px}
+.fine{font:12px/1.6 var(--mono);color:var(--mute);margin-top:26px}
+form{display:flex;gap:10px;flex-wrap:wrap;padding:14px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+form input[type=text]{flex:1 1 220px;background:transparent;border:0;border-bottom:1px solid var(--line);color:var(--ink);font-size:18px;padding:8px 2px;outline:0}
+form input[type=text]:focus{border-bottom-color:var(--accent)}
+form input[type=date]{background:#14110f;border:1px solid var(--line);border-radius:6px;color:var(--mute);font:13px var(--mono);padding:8px}
+.add{background:var(--accent);color:#1a1208;border:0;border-radius:6px;padding:9px 20px;font:700 14px var(--mono);letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.add:hover{filter:brightness(1.08)}
+.tally{display:flex;justify-content:space-between;font:12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:26px 2px 6px}
+ul{list-style:none;margin:0;padding:0}
+li{display:flex;align-items:center;gap:14px;padding:16px 4px;border-bottom:1px solid var(--line);animation:in .25s ease both}
+@keyframes in{from{opacity:0;transform:translateY(6px)}}
+@media (prefers-reduced-motion:reduce){li{animation:none}.google{transition:none}}
+li input[type=checkbox]{appearance:none;width:22px;height:22px;flex:none;border:1.5px solid var(--mute);border-radius:4px;background:transparent;cursor:pointer;display:grid;place-items:center}
+li input[type=checkbox]:checked{background:var(--accent);border-color:var(--accent)}
+li input[type=checkbox]:checked::after{content:"";width:6px;height:11px;border:solid #1a1208;border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.t{flex:1;font-size:19px;line-height:1.35;word-break:break-word}
+.due{font:12px var(--mono);color:var(--mute)}
+li.done .t{text-decoration:line-through;text-decoration-color:var(--accent);color:var(--mute)}
+.del{background:none;border:0;color:var(--mute);font-size:22px;line-height:1;cursor:pointer;padding:2px 8px;border-radius:4px}
+.del:hover{color:var(--danger)}
+.empty{text-align:center;color:var(--mute);font-style:italic;padding:44px 0}
+.err{background:#2a1512;border:1px solid #5a2a22;color:#f3b8ab;border-radius:8px;padding:10px 14px;font:13px var(--mono);margin:0 0 18px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+<div class="top">
+ <div><div class="kicker">Todo &middot; Ledger</div></div>
+ <div class="who" id="who" hidden><span id="who-name"></span><button id="signout" type="button">Sign out</button></div>
+</div>
+<h1 id="title">Your list, <em>kept private.</em></h1>
+<p class="date" id="date"></p>
+<hr class="rule">
+<p class="err" id="err" hidden></p>
+
+<section id="signin" hidden>
+ <p class="lede">Sign in with Google to open your private list. Every task is stored against your account, and nobody else can see or change it.</p>
+ <button class="google" id="signin-btn" type="button">
+  <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.2C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-2.9-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.9 2.3-8.5 2.3-6.3 0-11.6-4.1-13.5-9.9l-7.9 6.2C6.5 42.6 14.6 48 24 48z"/></svg>
+  Continue with Google
+ </button>
+ <p class="fine">Sign-in is handled by Google. This page only receives a signed ID token, and Workato checks it on every request.</p>
+</section>
+
+<section id="app" hidden>
+ <form id="form">
+  <input id="input" type="text" maxlength="160" placeholder="What needs doing?" autocomplete="off" aria-label="New task">
+  <input id="due" type="date" aria-label="Due date (optional)">
+  <button class="add" type="submit">Add</button>
+ </form>
+ <div class="tally"><span id="open"></span><span id="done"></span></div>
+ <ul id="list"></ul>
+ <p class="empty" id="empty" hidden>Nothing on the ledger yet.</p>
+</section>
+</main>
+<script>
+// ---- Config: change these two values when the collections or Google client change ----
+const GOOGLE_CLIENT_ID="62836436917-2drj9a39hhogs2idvfvmm7ip5tgmggun.apps.googleusercontent.com";
+const API_URL="https://apim.workato.com/anz-presales/todo-oauth-api-v1/api_collections/1402134/api_endpoints";
+// ----------------------------------------------------------------------------------------
+const $=id=>document.getElementById(id);
+const store=sessionStorage;
+const isTrue=v=>v===true||v==="true";
+let todos=[],idToken="";
+
+function showError(m){$("err").textContent=m||"";$("err").hidden=!m}
+function rand(){const a=new Uint8Array(16);crypto.getRandomValues(a);return Array.from(a,b=>b.toString(16).padStart(2,"0")).join("")}
+function decode(jwt){const p=jwt.split(".")[1].replace(/-/g,"+").replace(/_/g,"/");return JSON.parse(decodeURIComponent(atob(p).split("").map(c=>"%"+c.charCodeAt(0).toString(16).padStart(2,"0")).join("")))}
+// The redirect URI is this page's own URL without the fragment. Register it exactly in the Google OAuth client.
+function pageUrl(){return location.origin+location.pathname+location.search}
+
+function signIn(){
+ const state=rand(),nonce=rand();
+ store.setItem("oauth_state",state);store.setItem("oauth_nonce",nonce);
+ const q=new URLSearchParams({client_id:GOOGLE_CLIENT_ID,redirect_uri:pageUrl(),response_type:"id_token",scope:"openid email profile",state,nonce,prompt:"select_account"});
+ location.href="https://accounts.google.com/o/oauth2/v2/auth?"+q;
+}
+function signOut(msg){
+ store.removeItem("id_token");idToken="";todos=[];render();
+ $("who").hidden=true;$("app").hidden=true;$("signin").hidden=false;showError(msg||"");
+}
+// Client-side checks are for UX only. Workato validates the token signature and claims on every API call.
+function acceptToken(t){
+ const c=decode(t);
+ if(c.aud!==GOOGLE_CLIENT_ID)throw new Error("Token was issued for a different client");
+ if(!/^https:\/\/accounts\.google\.com$|^accounts\.google\.com$/.test(c.iss))throw new Error("Unexpected token issuer");
+ if(c.exp*1000<Date.now()+5000)throw new Error("Token has expired");
+ return c;
+}
+function readCallback(){
+ if(!location.hash.includes("id_token="))return false;
+ const h=new URLSearchParams(location.hash.slice(1));
+ history.replaceState(null,"",pageUrl());
+ if(h.get("error")){showError("Google sign-in failed: "+h.get("error"));return true}
+ try{
+  if(h.get("state")!==store.getItem("oauth_state"))throw new Error("State mismatch, please try again");
+  const t=h.get("id_token"),c=acceptToken(t);
+  if(c.nonce!==store.getItem("oauth_nonce"))throw new Error("Nonce mismatch, please try again");
+  store.setItem("id_token",t);
+ }catch(e){showError(e.message)}
+ store.removeItem("oauth_state");store.removeItem("oauth_nonce");
+ return true;
+}
+
+async function api(method,path,body){
+ const res=await fetch(API_URL+(path||""),{method,headers:{Authorization:"Bearer "+idToken,...(body?{"Content-Type":"application/json"}:{})},body:body?JSON.stringify(body):undefined});
+ if(res.status===401){signOut("Your session ended. Please sign in again.");throw new Error("unauthorised")}
+ const data=await res.json().catch(()=>({}));
+ if(!res.ok)throw new Error(data.message||"Request failed ("+res.status+")");
+ return data;
+}
+const norm=r=>({id:r.id,title:r.title||"",notes:r.notes||"",due_date:r.due_date||"",completed:isTrue(r.completed)});
+
+function render(){
+ const list=$("list");list.replaceChildren();
+ const sorted=[...todos].sort((a,b)=>a.completed-b.completed);
+ $("empty").hidden=todos.length>0;
+ $("open").textContent=todos.filter(t=>!t.completed).length+" open";
+ $("done").textContent=todos.filter(t=>t.completed).length+" done";
+ sorted.forEach(t=>{
+  const li=document.createElement("li");if(t.completed)li.className="done";
+  const cb=document.createElement("input");cb.type="checkbox";cb.checked=t.completed;cb.ariaLabel="Mark complete";
+  cb.onchange=async()=>{
+   try{const r=norm(await api("PUT","",{id:t.id,title:t.title,notes:t.notes||undefined,due_date:t.due_date||undefined,completed:cb.checked}));Object.assign(t,r);render();showError("")}
+   catch(e){cb.checked=!cb.checked;if(e.message!=="unauthorised")showError(e.message)}
+  };
+  const s=document.createElement("span");s.className="t";s.textContent=t.title;
+  li.append(cb,s);
+  if(t.due_date){const d=document.createElement("span");d.className="due";d.textContent=t.due_date;li.append(d)}
+  const x=document.createElement("button");x.className="del";x.type="button";x.ariaLabel="Delete";x.textContent="×";
+  x.onclick=async()=>{try{await api("DELETE","?id="+encodeURIComponent(t.id));todos=todos.filter(o=>o.id!==t.id);render();showError("")}catch(e){if(e.message!=="unauthorised")showError(e.message)}};
+  li.append(x);list.append(li);
+ });
+}
+async function load(){
+ try{const d=await api("GET");todos=JSON.parse(d.records_json||"[]").map(norm);render();showError("")}
+ catch(e){if(e.message!=="unauthorised")showError("Could not load your list: "+e.message)}
+}
+$("form").onsubmit=async e=>{
+ e.preventDefault();
+ const title=$("input").value.trim();if(!title)return;
+ try{
+  const body={title,completed:false};if($("due").value)body.due_date=$("due").value;
+  todos.push(norm(await api("POST","",body)));
+  $("input").value="";$("due").value="";render();showError("");
+ }catch(err){if(err.message!=="unauthorised")showError(err.message)}
+};
+$("signin-btn").onclick=signIn;
+$("signout").onclick=()=>signOut("");
+
+function start(){
+ $("date").textContent=new Date().toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"});
+ readCallback();
+ idToken=store.getItem("id_token")||"";
+ let claims=null;
+ if(idToken){try{claims=acceptToken(idToken)}catch(e){store.removeItem("id_token");idToken="";showError("Your session expired. Please sign in again.")}}
+ if(!claims){$("signin").hidden=false;return}
+ $("who-name").textContent=claims.name||claims.email;
+ const av=claims.picture?Object.assign(document.createElement("img"),{src:claims.picture,alt:"",referrerPolicy:"no-referrer"}):Object.assign(document.createElement("i"),{textContent:(claims.name||claims.email||"?")[0].toUpperCase()});
+ $("who").prepend(av);$("who").hidden=false;$("title").innerHTML="Good to see you, <em></em>.";
+ $("title").querySelector("em").textContent=(claims.given_name||claims.name||"friend");
+ $("app").hidden=false;load();
+}
+start();
+</script>
+</body>
+</html>
