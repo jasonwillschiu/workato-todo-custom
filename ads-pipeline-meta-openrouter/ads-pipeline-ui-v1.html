@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ads Studio</title>
+<style>
+:root{--bg:#14110f;--panel:#1c1814;--panel2:#221d18;--line:#352b21;--ink:#f3ece0;--mute:#a39680;--accent:#f0a53a;--good:#7bc47f;--danger:#e4664c;
+--serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(1100px 500px at 50% -10%,#2a2016 0,transparent 70%),var(--bg);color:var(--ink);font-family:var(--serif);padding:28px 16px 80px}
+main{max-width:1080px;margin:0 auto}
+button,input,select,textarea{font-family:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+[hidden]{display:none!important}
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.logo{width:48px;height:48px;border-radius:10px;border:1px dashed var(--line);background:var(--panel);display:grid;place-items:center;overflow:hidden;cursor:pointer;flex:none;color:var(--mute);font:11px var(--mono);text-align:center}
+.logo img{width:100%;height:100%;object-fit:contain}
+.kicker{font:600 11px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--accent)}
+.title{font-size:clamp(26px,5vw,38px);line-height:1.1;margin:6px 0 0;cursor:text;border-bottom:1px dashed transparent;outline:none}
+.title:hover{border-bottom-color:var(--line)}
+.title-edit{font:inherit;font-size:clamp(26px,5vw,38px);background:transparent;border:0;border-bottom:1px solid var(--accent);color:var(--ink);width:min(520px,80vw);outline:none;padding:0}
+.who{display:flex;align-items:center;gap:10px;font:12px var(--mono);color:var(--mute);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 6px 5px 6px}
+.who img,.who i{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#1a1208;display:grid;place-items:center;font:700 12px var(--mono);font-style:normal}
+.who span{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.who button{background:none;border:0;color:var(--mute);font:12px var(--mono);cursor:pointer;padding:4px 8px;border-radius:999px}
+.who button:hover{color:var(--ink);background:#2a2219}
+.rule{height:1px;background:linear-gradient(90deg,var(--accent),var(--line) 30%,transparent);border:0;margin:20px 0 22px}
+.err{background:#2a1512;border:1px solid #5a2a22;color:#f3b8ab;border-radius:8px;padding:10px 14px;font:13px var(--mono);margin:0 0 18px}
+.lede{color:var(--mute);font-size:18px;line-height:1.55;max-width:52ch;margin:0 0 22px}
+.fine{font:12px/1.6 var(--mono);color:var(--mute);margin-top:18px}
+.google{display:inline-flex;align-items:center;gap:12px;background:var(--ink);color:#1a1208;border:0;border-radius:6px;padding:14px 22px;font:600 15px var(--serif);cursor:pointer}
+.google:hover{background:#fff}
+.ghost{background:transparent;color:var(--ink);border:1px solid var(--mute);border-radius:6px;padding:10px 16px;font:600 14px var(--serif);cursor:pointer}
+.ghost:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.ghost:disabled{opacity:.45;cursor:not-allowed}
+.btn{background:var(--accent);color:#1a1208;border:0;border-radius:6px;padding:11px 20px;font:700 13px var(--mono);letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.btn:hover:not(:disabled){filter:brightness(1.08)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.denied{border:1px solid #5a2a22;background:linear-gradient(180deg,#221410,#1a110e);border-radius:10px;padding:28px 26px}
+.layout{display:grid;grid-template-columns:250px 1fr;gap:26px;align-items:start}
+@media(max-width:820px){.layout{grid-template-columns:1fr}}
+.rail{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+.rail h3{font:600 11px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin:0 0 10px}
+.rail .cap{font:12px var(--mono);color:var(--mute);margin:10px 0 0}
+.sess{display:block;width:100%;text-align:left;background:transparent;border:1px solid transparent;border-radius:8px;padding:9px 10px;margin:4px 0;cursor:pointer}
+.sess:hover{background:var(--panel2)}
+.sess.on{border-color:var(--accent);background:var(--panel2)}
+.sess b{display:block;font-weight:400;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sess small{font:11px var(--mono);color:var(--mute)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;margin:0 0 20px}
+.card h2{font-weight:400;font-size:22px;margin:0 0 4px}
+.card h2 em{color:var(--accent)}
+.card .sub{font:12px/1.5 var(--mono);color:var(--mute);margin:0 0 16px}
+label.f{display:block;font:11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:12px 0 5px}
+textarea,select,.inp{width:100%;background:#14110f;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--ink)}
+textarea{min-height:110px;resize:vertical;line-height:1.45}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:620px){.row{grid-template-columns:1fr}}
+.actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:16px}
+.hint{font:12px var(--mono);color:var(--mute)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
+@media(max-width:700px){.grid3{grid-template-columns:1fr}}
+.ad{background:var(--panel2);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.ad.win{border-color:var(--good);box-shadow:0 0 0 1px var(--good)}
+.frame{aspect-ratio:4/5;background:#0f0d0b;display:grid;place-items:center;color:var(--mute);font:12px var(--mono);text-align:center;padding:10px}
+.frame img{width:100%;height:100%;object-fit:contain;display:block}
+.spin{width:22px;height:22px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:s 0.9s linear infinite;margin:0 auto 10px}
+@keyframes s{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.spin{animation:none}}
+.cap2{padding:10px 12px;font:12px/1.5 var(--mono);color:var(--mute);display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.cap2 b{color:var(--ink);font-size:13px}
+.badge{font:600 10px var(--mono);letter-spacing:.1em;text-transform:uppercase;background:var(--good);color:#0f1a10;border-radius:999px;padding:2px 8px}
+table{width:100%;border-collapse:collapse;font:13px var(--mono);margin-top:14px}
+th,td{padding:9px 8px;text-align:right;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{font-weight:600;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+tr.win td{color:var(--good)}
+.why{margin:14px 0 0;padding:12px 14px;border-left:3px solid var(--good);background:#16201a;border-radius:0 8px 8px 0;font-size:15px;line-height:1.5}
+.cmp{margin-top:10px;font:13px var(--mono);color:var(--mute)}
+.tag{font:11px var(--mono);color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+<div class="top">
+ <div class="brand">
+  <div class="logo" id="logo" title="Click to upload a logo (saved in this browser only)">Logo</div>
+  <div>
+   <div class="kicker">Ads Studio &middot; Meta &times; OpenRouter</div>
+   <h1 class="title" id="title" tabindex="0" title="Click to rename this demo">Your Company</h1>
+  </div>
+ </div>
+ <div class="who" id="who" hidden><span id="who-name"></span><button id="signout" type="button">Sign out</button></div>
+</div>
+<input type="file" id="logofile" accept="image/*" hidden>
+<hr class="rule">
+<p class="err" id="err" hidden></p>
+
+<section id="denied" class="denied" hidden>
+ <p class="lede">This app is limited to <strong id="allowed-domain">workato.com</strong> accounts. Your Google account was recognised, but it isn't allowed in.</p>
+ <p class="fine" id="denied-email"></p>
+ <button class="ghost" id="denied-btn" type="button">Use a different account</button>
+</section>
+
+<section id="signin" hidden>
+ <p class="lede">Sign in with Google to generate ad creatives, test them against simulated Meta Ads data, and iterate on the winner. Your sessions are saved to your account only.</p>
+ <button class="google" id="signin-btn" type="button">
+  <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.2C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-2.9-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.9 2.3-8.5 2.3-6.3 0-11.6-4.1-13.5-9.9l-7.9 6.2C6.5 42.6 14.6 48 24 48z"/></svg>
+  Continue with Google
+ </button>
+ <p class="fine">Sign-in is handled by Google. Workato checks the signed token on every request.</p>
+</section>
+
+<section id="app" hidden>
+ <div class="layout">
+  <aside class="rail">
+   <h3>Sessions</h3>
+   <button class="ghost" id="new" type="button" style="width:100%">+ New session</button>
+   <div id="sessions"></div>
+   <p class="cap" id="cap"></p>
+  </aside>
+  <div>
+   <div class="card" id="c1">
+    <h2>1 &middot; <em>Round 1</em> brief</h2>
+    <p class="sub">Describe the ad, pick a model and a format. Three images are generated in parallel.</p>
+    <label class="f" for="prompt">Prompt</label>
+    <textarea id="prompt" maxlength="2000"></textarea>
+    <div class="row">
+     <div><label class="f" for="model">Model</label><select id="model"></select></div>
+     <div><label class="f" for="ratio">Format</label><select id="ratio"></select></div>
+    </div>
+    <p class="hint" id="modelhint" style="margin:8px 0 0"></p>
+    <div class="actions">
+     <button class="btn" id="gen1" type="button">Generate 3 ads</button>
+     <button class="ghost" id="refresh" type="button">Refresh models &amp; prices</button>
+     <span class="hint" id="status1"></span>
+    </div>
+    <div class="grid3" id="grid1" hidden></div>
+   </div>
+
+   <div class="card" id="c2" hidden>
+    <h2>2 &middot; <em>Meta Ads</em> results</h2>
+    <p class="sub">Simulated Meta Ads data, saved in the Ads Meta Metrics data table. Each click re-randomises the results.</p>
+    <div class="actions" style="margin-top:0"><button class="btn" id="sim1" type="button">Simulate Meta Ads data</button><span class="hint" id="status2"></span></div>
+    <div id="metrics1"></div>
+   </div>
+
+   <div class="card" id="c3" hidden>
+    <h2>3 &middot; <em>Round 2</em> variations</h2>
+    <p class="sub">Keep the winner's hook and visual fixed, change one thing. The prompt is pre-filled and you can edit it.</p>
+    <div class="row">
+     <div><label class="f" for="variable">What to change</label><select id="variable"></select></div>
+     <div><label class="f">Reference</label><div class="inp" id="refnote" style="font-size:14px"></div></div>
+    </div>
+    <label class="f" for="prompt2">Round 2 prompt</label>
+    <textarea id="prompt2" maxlength="3000" style="min-height:170px"></textarea>
+    <div class="actions"><button class="btn" id="gen2" type="button">Generate 3 variants</button><span class="hint" id="status3"></span></div>
+    <div class="grid3" id="grid2" hidden></div>
+   </div>
+
+   <div class="card" id="c4" hidden>
+    <h2>4 &middot; <em>Round 2</em> results</h2>
+    <p class="sub">Simulate Meta Ads data for the variants and compare against the round 1 winner.</p>
+    <div class="actions" style="margin-top:0"><button class="btn" id="sim2" type="button">Simulate Meta Ads data</button><span class="hint" id="status4"></span></div>
+    <div id="metrics2"></div>
+   </div>
+  </div>
+ </div>
+</section>
+</main>
+<script>
+// ---- Config: set API_BASE after the collection is created. Everything else only changes if the Google client or domain changes. ----
+const GOOGLE_CLIENT_ID="62836436917-2drj9a39hhogs2idvfvmm7ip5tgmggun.apps.googleusercontent.com";
+const ALLOWED_DOMAIN="workato.com";
+const API_BASE="https://apim.workato.com/anz-presales/ads-pipeline-api-v1";
+// ------------------------------------------------------------------------------------------------------------------------------
+const $=id=>document.getElementById(id);
+const store=sessionStorage;
+const SLOTS=["A","B","C"];
+const RATIO_LABELS={"1:1":"1:1 · Square feed","4:5":"4:5 · Feed portrait","9:16":"9:16 · Stories and Reels","16:9":"16:9 · Landscape","3:4":"3:4 · Portrait","4:3":"4:3 · Landscape","2:3":"2:3 · Tall portrait","3:2":"3:2 · Wide","5:4":"5:4 · Near square","21:9":"21:9 · Ultra wide","9:21":"9:21 · Ultra tall"};
+const RATIO_ORDER=["4:5","1:1","9:16","16:9","3:4","4:3","2:3","3:2","5:4","21:9","9:21"];
+const VARIABLES=[
+ {id:"cta",label:"Call to action",text:"the call-to-action wording and button (use a different but equally clear CTA)"},
+ {id:"palette",label:"Colour palette",text:"the colour palette (keep strong contrast and readable text)"},
+ {id:"background",label:"Background and setting",text:"the background and setting behind the main subject"},
+ {id:"headline",label:"Supporting line",text:"the supporting line under the hook (a different angle, same hook)"},
+ {id:"mood",label:"Lighting and mood",text:"the lighting and overall mood"},
+ {id:"framing",label:"Subject framing",text:"how the main subject is framed and cropped"}
+];
+const S={models:[],sessions:[],runsToday:0,runsLimit:3,sid:"",session:null,creatives:[],metrics:[],imgs:{},pending:{},errs:{},p2Dirty:false,busy:false};
+let idToken="",claims=null;
+const quiet=e=>e.message==="unauthorised"||e.message==="denied";
+
+function showError(m){$("err").textContent=m||"";$("err").hidden=!m}
+function rand(){const a=new Uint8Array(16);crypto.getRandomValues(a);return Array.from(a,b=>b.toString(16).padStart(2,"0")).join("")}
+function decode(jwt){const p=jwt.split(".")[1].replace(/-/g,"+").replace(/_/g,"/");return JSON.parse(decodeURIComponent(atob(p).split("").map(c=>"%"+c.charCodeAt(0).toString(16).padStart(2,"0")).join("")))}
+function pageUrl(){return location.origin+location.pathname+location.search}
+function h(tag,attrs,...kids){const e=document.createElement(tag);for(const[k,v]of Object.entries(attrs||{})){if(k==="class")e.className=v;else if(k.startsWith("on"))e[k]=v;else e.setAttribute(k,v)}kids.flat().forEach(c=>{if(c!=null)e.append(c.nodeType?c:document.createTextNode(c))});return e}
+
+// ---- browser-only branding (title and logo), per demo ----
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v);return true}catch(e){return false}}
+function brandTitle(){return lsGet("ads_brand_title")||"Your Company"}
+function applyBrand(){
+ $("title").textContent=brandTitle();document.title=brandTitle()+" · Ads Studio";
+ const logo=lsGet("ads_brand_logo");$("logo").replaceChildren();
+ if(logo)$("logo").append(h("img",{src:logo,alt:"Logo"}));else $("logo").textContent="Logo";
+}
+function editTitle(){
+ const i=h("input",{class:"title-edit",value:brandTitle(),maxlength:"60","aria-label":"Demo title"});
+ const done=save=>{if(save){const v=i.value.trim();if(v)lsSet("ads_brand_title",v)}i.replaceWith($("title"));applyBrand();if(!S.sid&&!$("prompt").dataset.touched)$("prompt").value=samplePrompt()};
+ i.onblur=()=>done(true);i.onkeydown=e=>{if(e.key==="Enter")i.blur();if(e.key==="Escape"){i.value=brandTitle();i.blur()}};
+ $("title").replaceWith(i);i.focus();i.select();
+}
+$("title").onclick=editTitle;$("title").onkeydown=e=>{if(e.key==="Enter")editTitle()};
+$("logo").onclick=()=>$("logofile").click();
+$("logofile").onchange=e=>{
+ const f=e.target.files[0];if(!f)return;
+ const img=new Image(),url=URL.createObjectURL(f);
+ img.onload=()=>{
+  const max=160,sc=Math.min(1,max/Math.max(img.width,img.height));
+  const c=document.createElement("canvas");c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);
+  c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);
+  if(!lsSet("ads_brand_logo",c.toDataURL("image/png")))showError("Could not save the logo in this browser.");else applyBrand();
+ };
+ img.onerror=()=>showError("That file is not an image I can read.");img.src=url;e.target.value="";
+};
+function samplePrompt(){return "Social ad for "+brandTitle()+". One bold headline, a single hero visual, clean uncluttered background and a clear call-to-action button. Photographic, high contrast, readable text."}
+
+// ---- Google sign-in (page is its own OAuth callback) ----
+function signIn(){
+ const state=rand(),nonce=rand();
+ store.setItem("oauth_state",state);store.setItem("oauth_nonce",nonce);
+ const q=new URLSearchParams({client_id:GOOGLE_CLIENT_ID,redirect_uri:pageUrl(),response_type:"id_token",scope:"openid email profile",state,nonce,prompt:"select_account"});
+ location.href="https://accounts.google.com/o/oauth2/v2/auth?"+q;
+}
+function signOut(msg){
+ store.removeItem("id_token");idToken="";claims=null;
+ $("who").hidden=true;$("app").hidden=true;$("denied").hidden=true;$("signin").hidden=false;showError(msg||"");
+}
+function tokenExpired(){try{return decode(idToken).exp*1000<Date.now()+5000}catch(e){return true}}
+function domainOk(c){
+ const email=String(c.email||"").toLowerCase(),hd=c.hd?String(c.hd).toLowerCase():"";
+ return email.endsWith("@"+ALLOWED_DOMAIN)&&(!hd||hd===ALLOWED_DOMAIN)&&c.email_verified!==false&&c.email_verified!=="false";
+}
+function showDenied(){
+ $("app").hidden=true;$("signin").hidden=true;showError("");
+ $("allowed-domain").textContent=ALLOWED_DOMAIN;$("denied-email").textContent=claims?(claims.email||""):"";$("denied").hidden=false;
+}
+function acceptToken(t){
+ const c=decode(t);
+ if(c.aud!==GOOGLE_CLIENT_ID)throw new Error("Token was issued for a different client");
+ if(!/^https:\/\/accounts\.google\.com$|^accounts\.google\.com$/.test(c.iss))throw new Error("Unexpected token issuer");
+ if(c.exp*1000<Date.now()+5000)throw new Error("Token has expired");
+ return c;
+}
+function readCallback(){
+ if(!location.hash.includes("id_token="))return false;
+ const hh=new URLSearchParams(location.hash.slice(1));history.replaceState(null,"",pageUrl());
+ if(hh.get("error")){showError("Google sign-in failed: "+hh.get("error"));return true}
+ try{
+  if(hh.get("state")!==store.getItem("oauth_state"))throw new Error("State mismatch, please try again");
+  const t=hh.get("id_token"),c=acceptToken(t);
+  if(c.nonce!==store.getItem("oauth_nonce"))throw new Error("Nonce mismatch, please try again");
+  store.setItem("id_token",t);
+ }catch(e){showError(e.message)}
+ store.removeItem("oauth_state");store.removeItem("oauth_nonce");return true;
+}
+
+// ---- API ----
+async function api(method,path,{query,body}={}){
+ const u=API_BASE+path+(query?"?"+new URLSearchParams(query):"");
+ const res=await fetch(u,{method,headers:{Authorization:"Bearer "+idToken,...(body?{"Content-Type":"application/json"}:{})},body:body?JSON.stringify(body):undefined});
+ if(res.status===403){showDenied();throw new Error("denied")}
+ if(res.status===401){if(tokenExpired())signOut("Your session ended. Please sign in again.");else showDenied();throw new Error("unauthorised")}
+ const data=await res.json().catch(()=>({}));
+ if(!res.ok)throw new Error(data.message||"Request failed ("+res.status+")");
+ return data;
+}
+const money=n=>"$"+Number(n).toFixed(2);
+const pct=n=>Number(n).toFixed(2)+"%";
+const num=n=>Number(n).toLocaleString();
+
+async function loadModels(){
+ const d=await api("GET","/models");
+ S.models=JSON.parse(d.models_json||"[]");renderModels();
+}
+async function loadSessions(){
+ const d=await api("GET","/sessions");
+ S.sessions=JSON.parse(d.sessions_json||"[]");S.runsToday=Number(d.runs_today)||0;S.runsLimit=Number(d.runs_limit)||3;renderRail();
+}
+async function loadDetail(sid){
+ const d=await api("GET","/sessions/detail",{query:{session_id:sid}});
+ S.sid=sid;S.session=JSON.parse(d.session_json||"{}");S.creatives=JSON.parse(d.creatives_json||"[]");S.metrics=JSON.parse(d.metrics_json||"[]");
+}
+async function fetchImage(c){
+ if(S.imgs[c.id]||c.status!=="ok")return;
+ try{const d=await api("GET","/creatives/image",{query:{session_id:S.sid,creative_id:c.id}});S.imgs[c.id]=d.data_url;renderAll()}
+ catch(e){if(!quiet(e))S.errs[c.id]=e.message;renderAll()}
+}
+function loadImages(){S.creatives.forEach(c=>fetchImage(c))}
+
+// ---- derived data ----
+const creativesOf=r=>S.creatives.filter(c=>c.round===r&&c.status==="ok");
+const metricsOf=r=>S.metrics.filter(m=>m.round===r);
+function winnerOf(r){
+ const ms=metricsOf(r);if(!ms.length)return null;
+ const w=ms.reduce((a,b)=>b.cpa<a.cpa?b:a);
+ const topCtr=ms.reduce((a,b)=>b.ctr>a.ctr?b:a);
+ const others=ms.filter(m=>m!==w);
+ return{w,others,ctrLeads:topCtr===w};
+}
+function why(r){
+ const x=winnerOf(r);if(!x)return"";
+ const w=x.w,o=x.others;if(!o.length)return"Ad "+w.slot+" is the only ad in this round.";
+ const bestOtherCpa=Math.min(...o.map(m=>m.cpa)),bestOtherCtr=Math.max(...o.map(m=>m.ctr));
+ let t="Ad "+w.slot+" wins on cost per acquisition: "+money(w.cpa)+" against "+money(bestOtherCpa)+" for the next best.";
+ t+=x.ctrLeads?" It also leads on click-through rate ("+pct(w.ctr)+" vs "+pct(bestOtherCtr)+"), so the creative is pulling attention and the clicks are converting.":" Its CTR ("+pct(w.ctr)+") is not the highest, so the saving comes from conversion rather than attention.";
+ return t;
+}
+function creativeById(id){return S.creatives.find(c=>c.id===id)}
+function slotOf(id){const c=creativeById(id);return c?c.slot:"?"}
+
+// ---- rendering ----
+function renderModels(){
+ const sel=$("model"),cur=sel.value||(S.session&&S.session.model_id)||"";
+ sel.replaceChildren();
+ if(!S.models.length){sel.append(h("option",{value:""},"No models enabled yet. Click Refresh models & prices."))}
+ S.models.forEach(m=>{
+  const bits=[m.name];if(m.price)bits.push(m.price);
+  if(m.avg_cost)bits.push("$"+m.avg_cost.toFixed(3)+"/img measured");
+  if(m.latency_ms)bits.push("~"+(m.latency_ms/1000).toFixed(1)+"s");
+  sel.append(h("option",{value:m.model_id},bits.join(" · ")));
+ });
+ if(cur&&S.models.some(m=>m.model_id===cur))sel.value=cur;
+ renderRatios();
+}
+function currentModel(){return S.models.find(m=>m.model_id===$("model").value)}
+function renderRatios(){
+ const sel=$("ratio"),cur=sel.value||(S.session&&S.session.aspect_ratio)||"4:5",m=currentModel();
+ let list=m&&m.ratios&&m.ratios.length?m.ratios.slice():["4:5","1:1","9:16","16:9"];
+ list.sort((a,b)=>{const ia=RATIO_ORDER.indexOf(a),ib=RATIO_ORDER.indexOf(b);return(ia<0?99:ia)-(ib<0?99:ib)});
+ sel.replaceChildren();list.forEach(r=>sel.append(h("option",{value:r},RATIO_LABELS[r]||r)));
+ sel.value=list.includes(cur)?cur:list[0];
+ $("modelhint").textContent=m?(m.max_refs>0?"This model can use the round 1 winner as a reference image in round 2.":"This model cannot take a reference image, so round 2 will rely on the prompt text only."):"";
+}
+function stageLabel(s){return({round1:"Round 1 ads",metrics_r1:"Round 1 results",metrics_r2:"Round 2 results"})[s]||"Saved"}
+function renderRail(){
+ const box=$("sessions");box.replaceChildren();
+ S.sessions.forEach(s=>{
+  const d=s.created_at?new Date(s.created_at):null;
+  box.append(h("button",{class:"sess"+(s.id===S.sid?" on":""),type:"button",onclick:()=>openSession(s.id)},
+   h("b",null,s.title||s.brief.slice(0,40)||"Untitled"),h("small",null,(d&&!isNaN(d)?d.toLocaleDateString(undefined,{day:"numeric",month:"short"})+" · ":"")+stageLabel(s.stage))));
+ });
+ if(!S.sessions.length)box.append(h("p",{class:"cap"},"No saved sessions yet."));
+ $("cap").textContent="Sessions today: "+S.runsToday+" of "+S.runsLimit;
+}
+function adCard(round,slot){
+ const c=creativesOf(round).find(x=>x.slot===slot),key=round+slot,pend=S.pending[key];
+ const x=winnerOf(round),isWin=!!(c&&x&&x.w.creative_id===c.id);
+ const frame=h("div",{class:"frame"});
+ if(c&&S.imgs[c.id])frame.append(h("img",{src:S.imgs[c.id],alt:"Ad "+slot}));
+ else if(pend==="loading"||(c&&!S.errs[c.id]))frame.append(h("div",null,h("div",{class:"spin"}),pend==="loading"?"Generating… up to a minute":"Loading image…"));
+ else if(S.errs[key]||(c&&S.errs[c.id]))frame.append(h("div",null,"Could not generate this ad.",h("br"),h("span",{class:"hint"},S.errs[key]||S.errs[c.id])));
+ else frame.append("Waiting");
+ const cap=h("div",{class:"cap2"},h("b",null,"Ad "+slot),isWin?h("span",{class:"badge"},"Winner"):null,
+  c&&c.latency_ms?h("span",null,(c.latency_ms/1000).toFixed(1)+"s"+(c.cost_usd?" · $"+Number(c.cost_usd).toFixed(3):"")):null);
+ if(!c&&S.errs[key]&&!S.busy)cap.append(h("button",{class:"ghost",type:"button",onclick:()=>retry(round,slot)},"Retry"));
+ return h("div",{class:"ad"+(isWin?" win":"")},frame,cap);
+}
+function renderGrid(round){
+ const g=$(round===1?"grid1":"grid2"),any=SLOTS.some(s=>creativesOf(round).some(c=>c.slot===s)||S.pending[round+s]||S.errs[round+s]);
+ g.hidden=!any;g.replaceChildren();if(any)SLOTS.forEach(s=>g.append(adCard(round,s)));
+}
+function renderMetrics(round){
+ const box=$(round===1?"metrics1":"metrics2"),ms=metricsOf(round);box.replaceChildren();
+ if(!ms.length)return;
+ const x=winnerOf(round);
+ const rows=SLOTS.map(s=>ms.find(m=>m.slot===s)).filter(Boolean);
+ const t=h("table",null,h("thead",null,h("tr",null,["Ad","Impressions","Clicks","CTR","Spend","Conversions","CPA"].map(c=>h("th",null,c)))),
+  h("tbody",null,rows.map(m=>h("tr",{class:x&&x.w===m?"win":""},h("td",null,"Ad "+m.slot+(x&&x.w===m?" ★":"")),h("td",null,num(m.impressions)),h("td",null,num(m.clicks)),h("td",null,pct(m.ctr)),h("td",null,money(m.spend)),h("td",null,num(m.conversions)),h("td",null,money(m.cpa))))));
+ box.append(t,h("p",{class:"why"},why(round)));
+ if(round===2){const w1=winnerOf(1);if(w1&&x){const d=x.w.cpa-w1.w.cpa;box.append(h("p",{class:"cmp"},"Round 1 winner (Ad "+w1.w.slot+"): CPA "+money(w1.w.cpa)+", CTR "+pct(w1.w.ctr)+" · Round 2 winner (Ad "+x.w.slot+"): CPA "+money(x.w.cpa)+", CTR "+pct(x.w.ctr)+" · "+(d<0?"CPA improved by "+money(-d):"CPA is "+money(d)+" higher")+"."))}}
+}
+function buildR2Prompt(){
+ const w=winnerOf(1);if(!w)return"";
+ const c=creativeById(w.w.creative_id),v=VARIABLES.find(x=>x.id===$("variable").value)||VARIABLES[0];
+ const orig=(c&&c.prompt)||(S.session&&S.session.brief)||"";
+ return "Create a variation of the winning ad (Ad "+w.w.slot+"), which had the best cost per acquisition.\n\nKeep fixed: the hook (headline and key message), the visual composition, the product or subject and the brand elements.\nChange only: "+v.text+".\n\nOriginal prompt:\n"+orig;
+}
+function renderRound2(){
+ const w=winnerOf(1),has2=creativesOf(2).length>0||SLOTS.some(s=>S.pending["2"+s]);
+ $("c3").hidden=!w;$("c4").hidden=!(w&&creativesOf(2).length>0);
+ if(!w)return;
+ const m=S.models.find(x=>x.model_id===(S.session&&S.session.model_id));
+ $("refnote").textContent="Ad "+w.w.slot+(m&&m.max_refs===0?" (prompt text only: this model has no reference image input)":" is sent to the model as the reference image");
+ if(!S.p2Dirty&&!has2)$("prompt2").value=buildR2Prompt();
+ $("gen2").disabled=S.busy||has2||!S.sid;
+ $("prompt2").disabled=has2;$("variable").disabled=has2;
+}
+function renderCards(){
+ const has1=creativesOf(1).length>0;
+ $("c2").hidden=!has1;
+ $("sim1").disabled=S.busy;$("sim1").textContent=metricsOf(1).length?"Re-simulate Meta Ads data":"Simulate Meta Ads data";
+ $("sim2").disabled=S.busy;$("sim2").textContent=metricsOf(2).length?"Re-simulate Meta Ads data":"Simulate Meta Ads data";
+ renderGrid(1);renderGrid(2);renderMetrics(1);renderMetrics(2);renderRound2();
+}
+function renderForm(){
+ const locked=!!S.sid;
+ $("prompt").disabled=locked||S.busy;$("model").disabled=locked||S.busy;$("ratio").disabled=locked||S.busy;
+ $("gen1").hidden=locked;$("refresh").disabled=S.busy;
+ if(locked&&S.session){$("prompt").value=S.session.brief||"";if(S.session.model_id&&S.models.some(m=>m.model_id===S.session.model_id))$("model").value=S.session.model_id;renderRatios();if(S.session.aspect_ratio)$("ratio").value=S.session.aspect_ratio}
+ $("gen1").disabled=S.busy||S.runsToday>=S.runsLimit;
+ if(!locked&&S.runsToday>=S.runsLimit)$("status1").textContent="Daily limit reached ("+S.runsLimit+" sessions). Open a saved session instead.";
+}
+function renderAll(){renderForm();renderCards();renderRail()}
+
+// ---- actions ----
+function setStatus(id,t){$(id).textContent=t||""}
+async function generateSlot(round,slot,prompt,parentId,variable){
+ const key=round+slot;S.pending[key]="loading";delete S.errs[key];renderCards();
+ try{
+  const sess=S.session||{};
+  const r=await api("POST","/creatives/generate",{body:{session_id:S.sid,round,slot,prompt,model_id:sess.model_id,aspect_ratio:sess.aspect_ratio,variable:variable||"",parent_creative_id:parentId||""}});
+  delete S.pending[key];return r;
+ }catch(e){delete S.pending[key];if(!quiet(e))S.errs[key]=e.message;renderCards();throw e}
+}
+async function runRound(round,prompt,parentId,variable,statusId){
+ S.busy=true;renderAll();setStatus(statusId,"Generating three ads in parallel…");
+ const results=await Promise.allSettled(SLOTS.map(s=>generateSlot(round,s,prompt,parentId,variable)));
+ try{await loadDetail(S.sid);loadImages()}catch(e){if(!quiet(e))showError(e.message)}
+ S.busy=false;renderAll();
+ const ok=results.filter(r=>r.status==="fulfilled").length;
+ setStatus(statusId,ok===3?"Done.":ok+" of 3 ads generated. Use Retry on the others.");
+}
+async function retry(round,slot){
+ if(S.busy)return;S.busy=true;renderAll();
+ const prompt=round===1?(S.session.brief||""):$("prompt2").value;
+ const w=winnerOf(1),parent=round===2&&w?w.w.creative_id:"";
+ const v=round===2?(VARIABLES.find(x=>x.id===$("variable").value)||{}).label:"";
+ try{await generateSlot(round,slot,prompt,parent,v)}catch(e){}
+ try{await loadDetail(S.sid);loadImages()}catch(e){}
+ S.busy=false;renderAll();
+}
+async function startRound1(){
+ showError("");const prompt=$("prompt").value.trim();
+ if(!prompt){showError("Write a prompt for the ad first.");return}
+ if(!$("model").value){showError("Pick a model first. If the list is empty, click Refresh models & prices.");return}
+ S.busy=true;renderAll();setStatus("status1","Starting session…");
+ try{
+  const r=await api("POST","/sessions",{body:{title:brandTitle(),brief:prompt,model_id:$("model").value,aspect_ratio:$("ratio").value}});
+  S.sid=r.session_id;S.runsToday=Number(r.runs_today)||S.runsToday+1;
+  S.session={id:S.sid,title:brandTitle(),brief:prompt,model_id:$("model").value,aspect_ratio:$("ratio").value,stage:"round1"};
+  S.creatives=[];S.metrics=[];S.imgs={};S.pending={};S.errs={};S.p2Dirty=false;
+  S.busy=false;await runRound(1,prompt,"","","status1");
+  loadSessions().catch(()=>{});
+ }catch(e){S.busy=false;if(!quiet(e))showError(e.message);setStatus("status1","");renderAll()}
+}
+async function simulate(round,statusId){
+ showError("");S.busy=true;renderAll();setStatus(statusId,"Pulling Meta Ads data…");
+ try{await api("POST","/meta-ads/simulate",{body:{session_id:S.sid,round}});await loadDetail(S.sid);S.p2Dirty=false;setStatus(statusId,"Meta Ads data updated.");loadSessions().catch(()=>{})}
+ catch(e){if(!quiet(e))showError(e.message);setStatus(statusId,"")}
+ S.busy=false;renderAll();
+}
+async function startRound2(){
+ showError("");const w=winnerOf(1);if(!w)return;
+ const prompt=$("prompt2").value.trim();if(!prompt){showError("The round 2 prompt is empty.");return}
+ const v=(VARIABLES.find(x=>x.id===$("variable").value)||VARIABLES[0]).label;
+ await runRound(2,prompt,w.w.creative_id,v,"status3");
+}
+async function openSession(id){
+ if(S.busy||id===S.sid)return;showError("");
+ try{await loadDetail(id);S.imgs={};S.pending={};S.errs={};S.p2Dirty=false;renderAll();loadImages()}
+ catch(e){if(!quiet(e))showError(e.message)}
+}
+function newSession(){
+ if(S.busy)return;
+ Object.assign(S,{sid:"",session:null,creatives:[],metrics:[],imgs:{},pending:{},errs:{},p2Dirty:false});
+ $("prompt").value=samplePrompt();$("prompt").dataset.touched="";["status1","status2","status3","status4"].forEach(i=>setStatus(i,""));
+ renderModels();renderAll();
+}
+async function refreshModels(){
+ showError("");S.busy=true;renderAll();setStatus("status1","Refreshing models and prices from OpenRouter…");
+ try{const r=await api("POST","/models/refresh");await loadModels();setStatus("status1","Models refreshed: "+r.added+" added, "+r.updated+" updated. Enabled models are listed.")}
+ catch(e){if(!quiet(e))showError(e.message);setStatus("status1","")}
+ S.busy=false;renderAll();
+}
+
+$("signin-btn").onclick=signIn;
+$("signout").onclick=()=>signOut("");
+$("denied-btn").onclick=()=>{store.removeItem("id_token");signIn()};
+$("model").onchange=renderRatios;
+$("prompt").oninput=()=>{$("prompt").dataset.touched="1"};
+$("prompt2").oninput=()=>{S.p2Dirty=true};
+$("variable").onchange=()=>{if(!S.p2Dirty||confirm("Replace your edits with the template for this change?")){S.p2Dirty=false;$("prompt2").value=buildR2Prompt()}else{}};
+$("gen1").onclick=startRound1;$("gen2").onclick=startRound2;
+$("sim1").onclick=()=>simulate(1,"status2");$("sim2").onclick=()=>simulate(2,"status4");
+$("new").onclick=newSession;$("refresh").onclick=refreshModels;
+VARIABLES.forEach(v=>$("variable").append(h("option",{value:v.id},v.label)));
+
+async function boot(){
+ renderAll();
+ try{await Promise.all([loadModels(),loadSessions()])}
+ catch(e){if(!quiet(e))showError("Could not load the app: "+e.message)}
+ $("prompt").value=samplePrompt();renderForm();$("app").hidden=false;
+}
+function start(){
+ applyBrand();
+ readCallback();
+ idToken=store.getItem("id_token")||"";claims=null;
+ if(idToken){try{claims=acceptToken(idToken)}catch(e){store.removeItem("id_token");idToken="";showError("Your session expired. Please sign in again.")}}
+ if(!claims){$("signin").hidden=false;return}
+ $("who-name").textContent=claims.name||claims.email;
+ const av=claims.picture?Object.assign(document.createElement("img"),{src:claims.picture,alt:"",referrerPolicy:"no-referrer"}):Object.assign(document.createElement("i"),{textContent:(claims.name||claims.email||"?")[0].toUpperCase()});
+ $("who").prepend(av);$("who").hidden=false;
+ if(!domainOk(claims)){showDenied();return}
+ boot();
+}
+start();
+</script>
+</body>
+</html>

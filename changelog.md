@@ -1,3 +1,12 @@
+# 0.5.1 - Update: Ads pipeline uses the OpenRouter custom connector
+- New OpenRouter custom connector (Generate image, Send chat message, List models, custom action, live model dropdowns).
+- Models Refresh now uses List models and Creative Generate uses Generate image, so neither needs the HTTP connector. Removed the leftover chat test step from Models Refresh.
+- README updated. API collections, endpoints, the site key and the Google redirect URI are still manual steps.
+
+# 0.5.0 - Add: Ads pipeline (Meta Ads x OpenRouter)
+- New /ads-pipeline-meta-openrouter app: generate 3 ads through OpenRouter, simulate Meta Ads results, pick the winner on CPA (CTR explains it), then generate 3 variations of the winner.
+- Workato project, 4 data tables and 9 recipes built; UI v1 tested against a mock API. Collections, endpoints, the OpenRouter connection and the Google redirect URI are still manual steps (see the README).
+
 # 0.4.4 - Fix: Recipes would not start
 - Trigger response codes in the four API recipes were set to "200 - OK" text, so the 200 return step was invalid.
 - Set them back to numeric codes and documented the rule.
